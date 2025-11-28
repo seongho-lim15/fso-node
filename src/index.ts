@@ -6,6 +6,35 @@ type NoteType = {
   important: boolean;
 };
 
+type PhonebookType = {
+  id: string;
+  name: string;
+  number: string;
+};
+
+const phoneBooks: PhonebookType[] = [
+  {
+    id: "1",
+    name: "Arto Hellas",
+    number: "040-123456",
+  },
+  {
+    id: "2",
+    name: "Ada Lovelace",
+    number: "39-44-5323523",
+  },
+  {
+    id: "3",
+    name: "Dan Abramov",
+    number: "12-43-234345",
+  },
+  {
+    id: "4",
+    name: "Mary Poppendieck",
+    number: "39-23-6423122",
+  },
+];
+
 let notes: NoteType[] = [
   {
     id: "1",
@@ -24,7 +53,18 @@ let notes: NoteType[] = [
   },
 ];
 
+/**
+ * 최대 ID 생성
+ */
+const generateId: (array: any[]) => string = (array: any[]) => {
+  const MaxId =
+    array.length > 0 ? Math.max(...array.map((note) => Number(note.id))) : 0;
+
+  return String(MaxId + 1);
+};
+
 const app = express();
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.end("<h1>Hello World!</h1>");
@@ -51,17 +91,25 @@ app.delete("/api/notes/:id", (req, res) => {
 });
 
 app.post("/api/notes", (req, res) => {
-  req.on("data", (chunk) => {
-    console.log("chunk: ", chunk);
-    const chunkString = chunk.toString();
-    console.log("chunkString: ", chunkString);
-    const chunkJson = JSON.parse(chunkString);
-    console.log("chunkJson: ", chunkJson);
-  });
+  const body = req.body;
+  if (!body.content) {
+    return res.status(400).json({
+      error: "content missing",
+    });
+  }
 
-  req.on("end", () => {
-    res.status(200).end();
-  });
+  const note: NoteType = {
+    id: generateId(notes),
+    content: body.content,
+    important: body.important || false,
+  };
+
+  notes.push(note);
+  res.json(note);
+});
+
+app.get("/api/persons", (req, res) => {
+  res.json(phoneBooks);
 });
 
 const PORT = process.env.PORT || 3000;
