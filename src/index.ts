@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require("morgan");
 
 type NoteType = {
   id: string;
@@ -63,8 +64,32 @@ const generateId: (array: any[]) => string = (array: any[]) => {
   return String(MaxId + 1);
 };
 
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("Path:  ", request.path);
+  console.log("Body:  ", request.body);
+  console.log("---");
+  next();
+};
+
+const morganLogger = (tokens, req, res) => {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, "content-length"),
+    "-",
+    tokens["response-time"](req, res),
+    "ms",
+  ].join(" ");
+};
+
 const app = express();
 app.use(express.json());
+// app.use(requestLogger);
+
+// app.use(morgan("tiny"));
+app.use(morgan(morganLogger));
 
 app.get("/", (req, res) => {
   res.end("<h1>Hello World!</h1>");

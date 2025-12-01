@@ -14,7 +14,8 @@
   "license": "ISC",
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
