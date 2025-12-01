@@ -12,7 +12,7 @@ type PhonebookType = {
   number: string;
 };
 
-const phoneBooks: PhonebookType[] = [
+let phoneBooks: PhonebookType[] = [
   {
     id: "1",
     name: "Arto Hellas",
@@ -108,7 +108,68 @@ app.post("/api/notes", (req, res) => {
   res.json(note);
 });
 
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (_, res) => {
+  res.json(phoneBooks);
+});
+
+app.get("/info", (_, res) => {
+  const message = `Phonebook has info for ${phoneBooks.length} people \n\n${new Date().toString()}`;
+  res.send(message);
+});
+
+app.get("/api/persons/:id", (req, res) => {
+  const id = req.params.id;
+
+  const person = phoneBooks.find((person) => person.id === id);
+
+  if (!person) {
+    res.status(404).end(`No person with id ${id}`);
+  }
+
+  res.json(person);
+});
+
+app.delete("/api/persons/:id", (req, res) => {
+  const id = req.params.id;
+
+  const person = phoneBooks.find((person) => person.id === id);
+
+  if (!person) {
+    res.status(404).end(`No person with id ${id}`);
+  }
+
+  phoneBooks = phoneBooks.filter((person) => person.id !== id);
+
+  res.json(phoneBooks);
+});
+
+app.post("/api/persons", (req, res) => {
+  const body = req.body;
+
+  console.log("body: ", body);
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({ error: "name and number are required" });
+  }
+
+  const reqName = body.name;
+
+  const IsNameExist = phoneBooks.some((person) => person.name === reqName);
+
+  if (IsNameExist) {
+    return res.status(400).json({ error: "name must be unique" });
+  }
+
+  const newId = Math.trunc(Math.random() * 100000000).toString();
+
+  const newPerson: PhonebookType = {
+    id: newId,
+    name: body.name,
+    number: body.number,
+  };
+
+  phoneBooks = [...phoneBooks, newPerson];
+
   res.json(phoneBooks);
 });
 
