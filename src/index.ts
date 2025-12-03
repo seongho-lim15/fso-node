@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 type NoteType = {
   id: string;
@@ -85,6 +86,7 @@ const morganLogger = (tokens, req, res) => {
 };
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 // app.use(requestLogger);
 
